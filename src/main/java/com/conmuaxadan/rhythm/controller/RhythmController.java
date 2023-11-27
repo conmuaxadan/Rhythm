@@ -1,20 +1,18 @@
 package com.conmuaxadan.rhythm.controller;
 
+import com.conmuaxadan.rhythm.util.ConvertSecondToMinute;
+import com.conmuaxadan.rhythm.util.IconButton;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -34,7 +32,7 @@ public class RhythmController implements Initializable {
     @FXML
     private Slider sliderProgress, sliderVolume;
     @FXML
-    private Label lbSongName;
+    private Label lbSongName, lbCurrentTime, lbEndTime;
     @FXML
     private Button btnAddFolder;
 
@@ -60,7 +58,7 @@ public class RhythmController implements Initializable {
         initSongs("src/main/resources/com/conmuaxadan/rhythm/music");
         media = new Media(songs.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
-
+mediaPlayer.setVolume(10);
         lbSongName.setText(songs.get(songNumber).getName());
 
         sliderVolume.valueProperty().addListener(new ChangeListener<Number>() {
@@ -93,23 +91,17 @@ public class RhythmController implements Initializable {
     }
 
     @FXML
-    public void playMedia() throws MalformedURLException {
+    public void playMedia(){
         if (btnPlay.isSelected() && !isPlaying) {
             beginTimer();
             mediaPlayer.play();
-            ImageView i1 = new ImageView(new Image(new File("src/main/resources/com/conmuaxadan/rhythm/img/pause-button.png").getAbsolutePath()));
-            i1.setFitHeight(35);
-            i1.setFitWidth(35);
-            btnPlay.setGraphic(i1);
+            setButtonImage(IconButton.PAUSE_BUTTON_IMAGE);
             isPlaying = true;
         }
         if (!btnPlay.isSelected() && isPlaying) {
             cancelTimer();
             mediaPlayer.pause();
-            ImageView i1 = new ImageView(new Image(new File("src/main/resources/com/conmuaxadan/rhythm/img/play-button.png").getAbsolutePath()));
-            i1.setFitHeight(35);
-            i1.setFitWidth(35);
-            btnPlay.setGraphic(i1);
+            setButtonImage(IconButton.PLAY_BUTTON_IMAGE);
             isPlaying = false;
         }
     }
@@ -169,26 +161,31 @@ public class RhythmController implements Initializable {
         timerTask = new TimerTask() {
 
             public void run() {
+                Platform.runLater(() -> {
+                    running = true;
+                    double current = mediaPlayer.getCurrentTime().toSeconds();
+                    double end = media.getDuration().toSeconds();
+                    progress.setProgress(current / end);
+                    sliderProgress.setValue((current / end) * 100);
+                    lbCurrentTime.setText(ConvertSecondToMinute.secondsToTimeFormat(current));
+                    lbEndTime.setText(ConvertSecondToMinute.secondsToTimeFormat(end-current));
 
-                running = true;
-                double current = mediaPlayer.getCurrentTime().toSeconds();
-                double end = media.getDuration().toSeconds();
-                progress.setProgress(current / end);
-                sliderProgress.setValue((current / end) * 100);
+                    if (current / end == 1) {
 
-                if (current / end == 1) {
+                        cancelTimer();
+                        try {
+                            nextMedia();
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
 
-                    cancelTimer();
-                    try {
-                        nextMedia();
-                    } catch (MalformedURLException e) {
-                        throw new RuntimeException(e);
                     }
-                }
-            }
-        };
+                });
 
-        timer.scheduleAtFixedRate(timerTask, 0, 100);
+            }
+
+        };
+        timer.scheduleAtFixedRate(timerTask,0,100);
     }
 
     public void cancelTimer() {
@@ -205,6 +202,12 @@ public class RhythmController implements Initializable {
         initSongs(dir.getAbsolutePath());
         System.out.println(dir.getAbsolutePath());
 
+    }
+    private void setButtonImage(String imagePath) {
+        ImageView imageView = new ImageView(new Image(new File(imagePath).getAbsolutePath()));
+        imageView.setFitHeight(35);
+        imageView.setFitWidth(35);
+        btnPlay.setGraphic(imageView);
     }
 
 

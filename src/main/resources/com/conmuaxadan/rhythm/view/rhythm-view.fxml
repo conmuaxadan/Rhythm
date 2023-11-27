@@ -33,7 +33,10 @@
                   </ImageView>
                   <HBox prefHeight="38.0" prefWidth="200.0">
                      <children>
-                        <TextField prefHeight="25.0" prefWidth="160.0" />
+                        <TextField prefHeight="25.0" prefWidth="160.0">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin></TextField>
                         <ToggleButton mnemonicParsing="false" prefHeight="27.0" prefWidth="32.0">
                            <graphic>
                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -60,8 +63,8 @@
                      <children>
                         <ProgressBar fx:id="progress" layoutX="150.0" prefHeight="15.0" prefWidth="500.0" progress="0.0" />
                         <Slider id="sliderProgress" fx:id="sliderProgress" layoutX="148.0" layoutY="1.0" prefHeight="5.0" prefWidth="504.0" />
-                        <Label layoutX="108.0" layoutY="-1.0" text="00:00" textFill="WHITE" />
-                        <Label layoutX="660.0" layoutY="-1.0" text="00:00" textFill="#fffdfd" />
+                        <Label fx:id="lbCurrentTime" layoutX="108.0" layoutY="-1.0" text="00:00" textFill="WHITE" />
+                        <Label fx:id="lbEndTime" layoutX="660.0" layoutY="-1.0" text="00:00" textFill="#fffdfd" />
                      </children>
                   </Pane>
                   <GridPane alignment="CENTER" prefHeight="70.0" prefWidth="800.0">
