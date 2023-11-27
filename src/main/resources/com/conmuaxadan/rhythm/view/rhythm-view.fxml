@@ -129,7 +129,7 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2">
                            <children>
-                              <Slider fx:id="sliderVolume" />
+                              <Slider fx:id="sliderVolume" value="50.0" />
                            </children>
                         </HBox>
                      </children>
@@ -148,7 +148,14 @@
                <children>
                   <HBox id="hbox" alignment="CENTER_RIGHT" prefHeight="0.0" prefWidth="600.0">
                      <children>
-                        <Button mnemonicParsing="false" text="Add Folder" />
+                        <Button fx:id="btnAddFolder" mnemonicParsing="false" onAction="#addFolder" text="Add Folder">
+                           <graphic>
+                              <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../img/add-folder.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic></Button>
                         <ToggleButton mnemonicParsing="false" />
                      </children>
                   </HBox>
