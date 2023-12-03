@@ -18,7 +18,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.conmuaxadan.rhythm.controller.RhythmController">
    <children>
@@ -48,8 +50,8 @@
                         </ToggleButton>
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="227.0" text="Music" />
-                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Playing Queue" />
+                  <Button fx:id="btnHome" mnemonicParsing="false" onAction="#homeAction" prefHeight="50.0" prefWidth="227.0" text="Home" />
+                  <Button fx:id="btnPlayingQueue" mnemonicParsing="false" onAction="#playingQueueAction" prefHeight="50.0" prefWidth="200.0" text="Playing Queue" />
                </children>
                <BorderPane.margin>
                   <Insets />
@@ -59,14 +61,18 @@
          <bottom>
             <VBox id="vboxBottom" prefHeight="100.0" prefWidth="800.0" BorderPane.alignment="CENTER">
                <children>
-                  <Pane prefHeight="30.0" prefWidth="800.0">
+                  <HBox alignment="CENTER" prefHeight="42.0" prefWidth="750.0">
                      <children>
-                        <ProgressBar fx:id="progress" layoutX="150.0" prefHeight="15.0" prefWidth="500.0" progress="0.0" />
-                        <Slider id="sliderProgress" fx:id="sliderProgress" layoutX="148.0" layoutY="1.0" prefHeight="5.0" prefWidth="504.0" />
-                        <Label fx:id="lbCurrentTime" layoutX="108.0" layoutY="-1.0" text="00:00" textFill="WHITE" />
-                        <Label fx:id="lbEndTime" layoutX="660.0" layoutY="-1.0" text="00:00" textFill="#fffdfd" />
+                        <Label fx:id="lbCurrentTime" prefHeight="17.0" prefWidth="50.0" text="00:00" textFill="WHITE" />
+                        <StackPane prefHeight="10.0" prefWidth="510.0">
+                           <children>
+                              <ProgressBar fx:id="progress" prefHeight="15.0" prefWidth="500.0" progress="0.0" />
+                              <Slider id="sliderProgress" fx:id="sliderProgress" onMousePressed="#mousePressedSliderProgress" prefHeight="15.0" prefWidth="510.0" />
+                           </children>
+                        </StackPane>
+                        <Label fx:id="lbEndTime" alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="50.0" text="00:00" textFill="#fffdfd" />
                      </children>
-                  </Pane>
+                  </HBox>
                   <GridPane alignment="CENTER" prefHeight="70.0" prefWidth="800.0">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -101,15 +107,28 @@
                                     </ImageView>
                                  </graphic>
                               </ToggleButton>
-                              <ToggleButton fx:id="btnPlay" mnemonicParsing="false" onAction="#playMedia" prefHeight="40.0" prefWidth="40.0">
-                                 <graphic>
-                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../img/play-button.png" />
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </ToggleButton>
+                              <StackPane prefHeight="150.0" prefWidth="200.0">
+                                 <children>
+                                    <ToggleButton fx:id="btnPlay" mnemonicParsing="false" onAction="#playMedia" prefHeight="40.0" prefWidth="40.0">
+                                       <graphic>
+                                          <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../img/play-button.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic>
+                                    </ToggleButton>
+                                    <ToggleButton fx:id="btnPause" disable="true" mnemonicParsing="false" onAction="#pauseMedia" visible="false">
+                                       <graphic>
+                                          <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../img/pause-button.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic>
+                                    </ToggleButton>
+                                 </children>
+                              </StackPane>
                               <ToggleButton fx:id="btnNext" mnemonicParsing="false" onAction="#nextMedia">
                                  <graphic>
                                     <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
@@ -132,7 +151,7 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2">
                            <children>
-                              <Slider fx:id="sliderVolume" value="50.0" />
+                              <Slider fx:id="sliderVolume" max="50.0" value="25.0" />
                            </children>
                         </HBox>
                      </children>
@@ -151,15 +170,37 @@
                <children>
                   <HBox id="hbox" alignment="CENTER_RIGHT" prefHeight="0.0" prefWidth="600.0">
                      <children>
-                        <Button fx:id="btnAddFolder" mnemonicParsing="false" onAction="#addFolder" text="Add Folder">
-                           <graphic>
-                              <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../img/add-folder.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic></Button>
-                        <ToggleButton mnemonicParsing="false" />
+                        <Pane prefHeight="200.0" prefWidth="400.0">
+                           <children>
+                              <Label fx:id="lbTitle" text="Home" textFill="WHITE">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </Pane>
+                        <StackPane alignment="CENTER_LEFT" prefHeight="150.0" prefWidth="150.0">
+                           <children>
+                              <Button fx:id="btnAddFolder" mnemonicParsing="false" onAction="#addFolder" text="Add Folder">
+                                 <graphic>
+                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/add-folder.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                              <Button fx:id="btnAddFile" disable="true" mnemonicParsing="false" onAction="#addFile" text="Add File" visible="false">
+                                 <graphic>
+                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/add-file.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                           </children>
+                        </StackPane>
                      </children>
                   </HBox>
                   <TableView prefHeight="314.0" prefWidth="565.0" stylesheets="@../css/style.css">

@@ -1,7 +1,6 @@
 package com.conmuaxadan.rhythm.controller;
 
 import com.conmuaxadan.rhythm.util.ConvertSecondToMinute;
-import com.conmuaxadan.rhythm.util.IconButton;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -26,20 +26,21 @@ import java.util.TimerTask;
 
 public class RhythmController implements Initializable {
     @FXML
-    private ToggleButton btnPlay, btnNext, btnPre, btnReset;
+    private ToggleButton btnPlay, btnPause, btnNext, btnPre, btnReset;
     @FXML
     private ProgressBar progress;
     @FXML
     private Slider sliderProgress, sliderVolume;
     @FXML
-    private Label lbSongName, lbCurrentTime, lbEndTime;
+    private Label lbSongName, lbCurrentTime, lbEndTime, lbTitle;
     @FXML
-    private Button btnAddFolder;
+    private Button btnAddFolder, btnAddFile, btnHome,btnPlayingQueue;
 
     private Media media;
     private MediaPlayer mediaPlayer;
 
     private File dir;
+    private File file;
     private File[] files;
 
     private ArrayList<File> songs;
@@ -58,7 +59,7 @@ public class RhythmController implements Initializable {
         initSongs("src/main/resources/com/conmuaxadan/rhythm/music");
         media = new Media(songs.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
-mediaPlayer.setVolume(10);
+
         lbSongName.setText(songs.get(songNumber).getName());
 
         sliderVolume.valueProperty().addListener(new ChangeListener<Number>() {
@@ -71,39 +72,54 @@ mediaPlayer.setVolume(10);
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if (sliderProgress.isValueChanging()) {
-                    // multiply duration by percentage calculated by slider position
                     mediaPlayer.seek(Duration.seconds(media.getDuration().toSeconds() * (newValue.doubleValue() / 100)));
                     progress.setProgress(newValue.doubleValue() / 100);
                 }
             }
         });
-
     }
 
-    public void initSongs(String path){
+    public void initSongs(String path) {
         dir = new File(path);
         files = dir.listFiles();
-        if (files != null)
-            for (File file :
-                    files) {
-                songs.add(file);
-            }
+        if (dir.isDirectory()) {
+            if (files != null)
+                for (File file :
+                        files) {
+                    songs.add(file);
+                }
+        }
+        if (dir.isFile()){
+            songs.add(dir);
+        }
     }
 
     @FXML
-    public void playMedia(){
-        if (btnPlay.isSelected() && !isPlaying) {
-            beginTimer();
-            mediaPlayer.play();
-            setButtonImage(IconButton.PAUSE_BUTTON_IMAGE);
-            isPlaying = true;
-        }
-        if (!btnPlay.isSelected() && isPlaying) {
-            cancelTimer();
-            mediaPlayer.pause();
-            setButtonImage(IconButton.PLAY_BUTTON_IMAGE);
-            isPlaying = false;
-        }
+    public void playMedia() {
+        beginTimer();
+        mediaPlayer.setVolume(sliderVolume.getValue() * 0.01);
+        mediaPlayer.play();
+        isPlaying = true;
+
+        btnPlay.setDisable(true);
+        btnPlay.setVisible(false);
+
+        btnPause.setDisable(false);
+        btnPause.setVisible(true);
+    }
+    @FXML
+    public void pauseMedia() {
+        cancelTimer();
+        mediaPlayer.pause();
+        isPlaying = false;
+
+        btnPause.setDisable(true);
+        btnPause.setVisible(false);
+
+        btnPlay.setDisable(false);
+        btnPlay.setVisible(true);
+
+
     }
 
     @FXML
@@ -168,7 +184,7 @@ mediaPlayer.setVolume(10);
                     progress.setProgress(current / end);
                     sliderProgress.setValue((current / end) * 100);
                     lbCurrentTime.setText(ConvertSecondToMinute.secondsToTimeFormat(current));
-                    lbEndTime.setText(ConvertSecondToMinute.secondsToTimeFormat(end-current));
+                    lbEndTime.setText(ConvertSecondToMinute.secondsToTimeFormat(end - current));
 
                     if (current / end == 1) {
 
@@ -185,29 +201,60 @@ mediaPlayer.setVolume(10);
             }
 
         };
-        timer.scheduleAtFixedRate(timerTask,0,100);
+        timer.scheduleAtFixedRate(timerTask, 0, 100);
     }
 
     public void cancelTimer() {
         isPlaying = false;
         timer.cancel();
     }
+
     @FXML
-    public void addFolder(){
+    public void mousePressedSliderProgress() {
+        double newValue = sliderProgress.getValue();
+        mediaPlayer.seek(Duration.seconds(media.getDuration().toSeconds() * (newValue / 100)));
+        progress.setProgress(newValue / 100);
+    }
+
+    @FXML
+    public void addFolder() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Choose your title");
+        directoryChooser.setTitle("Choose your folder");
         directoryChooser.setInitialDirectory(new File("C:\\"));
-        Stage stage =(Stage) btnAddFolder.getScene().getWindow();
+        Stage stage = (Stage) btnAddFolder.getScene().getWindow();
         dir = directoryChooser.showDialog(stage);
         initSongs(dir.getAbsolutePath());
         System.out.println(dir.getAbsolutePath());
 
     }
-    private void setButtonImage(String imagePath) {
-        ImageView imageView = new ImageView(new Image(new File(imagePath).getAbsolutePath()));
-        imageView.setFitHeight(35);
-        imageView.setFitWidth(35);
-        btnPlay.setGraphic(imageView);
+    public void addFile(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose your file");
+        fileChooser.setInitialDirectory(new File("C:\\"));
+        Stage stage = (Stage) btnAddFile.getScene().getWindow();
+        dir = fileChooser.showOpenDialog(stage);
+        initSongs(dir.getAbsolutePath());
+        System.out.println(dir.getAbsolutePath());
+
+    }
+    public void homeAction(){
+        lbTitle.setText("Home");
+
+        btnAddFile.setDisable(true);
+        btnAddFile.setVisible(false);
+
+        btnAddFolder.setDisable(false);
+        btnAddFolder.setVisible(true);
+
+    }
+    public void playingQueueAction(){
+        lbTitle.setText("Playing Queue");
+
+        btnAddFolder.setDisable(true);
+        btnAddFolder.setVisible(false);
+
+        btnAddFile.setDisable(false);
+        btnAddFile.setVisible(true);
     }
 
 
