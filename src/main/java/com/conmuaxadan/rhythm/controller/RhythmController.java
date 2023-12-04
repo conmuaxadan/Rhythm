@@ -1,5 +1,6 @@
 package com.conmuaxadan.rhythm.controller;
 
+import com.conmuaxadan.rhythm.model.SongManagement;
 import com.conmuaxadan.rhythm.util.ConvertSecondToMinute;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -7,8 +8,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
@@ -19,14 +18,11 @@ import javafx.util.Duration;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class RhythmController implements Initializable {
     @FXML
-    private ToggleButton btnPlay, btnPause, btnNext, btnPre, btnReset;
+    private ToggleButton btnPlay, btnPause;
     @FXML
     private ProgressBar progress;
     @FXML
@@ -34,29 +30,33 @@ public class RhythmController implements Initializable {
     @FXML
     private Label lbSongName, lbCurrentTime, lbEndTime, lbTitle;
     @FXML
-    private Button btnAddFolder, btnAddFile, btnHome,btnPlayingQueue;
+    private Button btnAddFolder, btnAddFile;
+    @FXML
+    private ListView<File> listview;
+
+    private SongManagement songManagement;
+    private List<File> songs;
+
+    private File fileSrc;
 
     private Media media;
     private MediaPlayer mediaPlayer;
 
-    private File dir;
-    private File file;
-    private File[] files;
-
-    private ArrayList<File> songs;
     private int songNumber;
     private Timer timer;
     private TimerTask timerTask;
     private boolean running;
 
-    private boolean isPlaying;
-
-    double current, end;
+    private boolean isPlaying, isHome, isPlayingQueue;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        songs = new ArrayList<File>();
+        isHome = true;
+        songManagement = new SongManagement();
+        songs = new ArrayList<>();
+
         initSongs("src/main/resources/com/conmuaxadan/rhythm/music");
+
         media = new Media(songs.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
 
@@ -77,21 +77,31 @@ public class RhythmController implements Initializable {
                 }
             }
         });
+        listview.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(File item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName());
+                }
+            }
+        });
     }
 
     public void initSongs(String path) {
-        dir = new File(path);
-        files = dir.listFiles();
-        if (dir.isDirectory()) {
-            if (files != null)
-                for (File file :
-                        files) {
-                    songs.add(file);
-                }
+        if (isHome) {
+            songManagement.initSongs(path);
+            songs = new ArrayList<>(songManagement.getSongs());
+        }else {
+            songManagement.initPlayingQueue(path);
+            songs = new ArrayList<>(songManagement.getPlayingQueue());
         }
-        if (dir.isFile()){
-            songs.add(dir);
-        }
+        listview.getItems().clear();
+        listview.getItems().addAll(songs);
+
     }
 
     @FXML
@@ -107,6 +117,7 @@ public class RhythmController implements Initializable {
         btnPause.setDisable(false);
         btnPause.setVisible(true);
     }
+
     @FXML
     public void pauseMedia() {
         cancelTimer();
@@ -126,44 +137,32 @@ public class RhythmController implements Initializable {
     public void nextMedia() throws MalformedURLException {
         if (songNumber < songs.size() - 1) {
             songNumber++;
-            mediaPlayer.stop();
-
-            isPlaying = false;
-            media = new Media(songs.get(songNumber).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
-            lbSongName.setText(songs.get(songNumber).getName());
-            playMedia();
         } else {
             songNumber = 0;
-            mediaPlayer.stop();
-
-            isPlaying = false;
-            media = new Media(songs.get(songNumber).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
-            lbSongName.setText(songs.get(songNumber).getName());
-            playMedia();
         }
+      initPlay();
+
     }
 
     @FXML
     public void previousMedia() throws MalformedURLException {
         if (songNumber > 0) {
             songNumber--;
-            mediaPlayer.stop();
-            isPlaying = false;
-            media = new Media(songs.get(songNumber).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
-            lbSongName.setText(songs.get(songNumber).getName());
-            playMedia();
         } else {
             songNumber = songs.size() - 1;
-            mediaPlayer.stop();
-            isPlaying = false;
-            media = new Media(songs.get(songNumber).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
-            lbSongName.setText(songs.get(songNumber).getName());
-            playMedia();
         }
+        initPlay();
+
+    }
+
+    public void initPlay(){
+        mediaPlayer.stop();
+        media = new Media(songs.get(songNumber).toURI().toString());
+        mediaPlayer = new MediaPlayer(media);
+        lbSongName.setText(songs.get(songNumber).getName());
+        playMedia();
+        listview.getSelectionModel().select(songs.get(songNumber));
+        listview.scrollTo(songs.get(songNumber));
     }
 
     @FXML
@@ -222,23 +221,31 @@ public class RhythmController implements Initializable {
         directoryChooser.setTitle("Choose your folder");
         directoryChooser.setInitialDirectory(new File("C:\\"));
         Stage stage = (Stage) btnAddFolder.getScene().getWindow();
-        dir = directoryChooser.showDialog(stage);
-        initSongs(dir.getAbsolutePath());
-        System.out.println(dir.getAbsolutePath());
+        fileSrc = directoryChooser.showDialog(stage);
+        initSongs(fileSrc.getAbsolutePath());
+        System.out.println(fileSrc.getAbsolutePath());
 
     }
-    public void addFile(){
+
+    public void addFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose your file");
         fileChooser.setInitialDirectory(new File("C:\\"));
         Stage stage = (Stage) btnAddFile.getScene().getWindow();
-        dir = fileChooser.showOpenDialog(stage);
-        initSongs(dir.getAbsolutePath());
-        System.out.println(dir.getAbsolutePath());
+        fileSrc = fileChooser.showOpenDialog(stage);
+        initSongs(fileSrc.getAbsolutePath());
+        System.out.println(fileSrc.getAbsolutePath());
 
     }
-    public void homeAction(){
+
+    public void homeAction() {
+        isHome = true;
         lbTitle.setText("Home");
+        songs = new ArrayList<>(songManagement.getSongs());
+        System.out.println("Home");
+        ListView<File> newListview = listview;
+        newListview.getItems().clear();
+        newListview.getItems().addAll(songs);
 
         btnAddFile.setDisable(true);
         btnAddFile.setVisible(false);
@@ -247,8 +254,16 @@ public class RhythmController implements Initializable {
         btnAddFolder.setVisible(true);
 
     }
-    public void playingQueueAction(){
+
+    public void playingQueueAction() {
+        isHome = false;
         lbTitle.setText("Playing Queue");
+        songs = new ArrayList<>(songManagement.getPlayingQueue());
+        ListView<File> newListview = listview;
+        newListview.getItems().clear();
+        newListview.getItems().addAll(songs);
+
+        System.out.println("Playing Queue");
 
         btnAddFolder.setDisable(true);
         btnAddFolder.setVisible(false);

@@ -2,16 +2,31 @@
 #borderPane {
     -fx-background-color: #1e2228;
 }
-/*Hybird slider and progress-bar*/
+/*Hybrid slider and progress-bar*/
 #sliderProgress .track {
-    -fx-text-box-border: #43474e;
-    -fx-control-inner-background: #43474e;
+    /*-fx-text-box-border: #43474e;*/
+    /*-fx-control-inner-background: #43474e;   */
 
     -fx-background-color:null;  /* Hide the track */
-    -fx-background-insets: 1 0 -1 0, 0, 1;
-    -fx-background-radius: 2.5, 2.5, 1.5;
+    /*-fx-background-insets: 1 0 -1 0, 0, 1;*/
+    /*-fx-background-radius: 2.5, 2.5, 1.5;*/
     -fx-padding: 0.208333em; /* 2.5 */
 }
+.progress-bar .bar {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+}
+
+.progress-bar .track {
+    -fx-background-insets: 0;
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+}
+
+
+
 #vboxBottom {
     -fx-background-color: #22272e;
     -fx-background-radius: 10;
@@ -49,33 +64,30 @@
     -fx-background-radius: 5;
     -fx-background-color: #a5c8ff;
 }
-/* make table view background transparent */
-.table-view {
+
+/* make list view background transparent */
+.list-view {
     -fx-background-color: transparent;
 }
 
-.table-row-cell {
-    -fx-cell-size: 60;
+
+.list-cell {
+    -fx-cell-size: 50;
     -fx-background-radius: 5;
     -fx-background-insets: 2;
-    -fx-padding: 10;
+    -fx-padding: 5;
     -fx-text-fill: #fefefe;
     -fx-font-weight: bold;
     -fx-background-color: #2d333b;
+
 }
 
-/* table row cell focus when click or use tableView.getFocusModel() to focus */
-.table-row-cell:focused {
+/* list cell focus when click or use listView.getFocusModel() to focus */
+.list-cell:focused {
     -fx-background-color: #3d4758;
     -fx-text-fill: #a5c8ff;
 }
-
-/* table cell style */
-.table-cell {
-    -fx-alignment: center;
-    -fx-border-color: transparent;
-}
-.table-view .column-header-background {
+.scroll-bar:vertical{
     -fx-opacity: 0;
 }
 
