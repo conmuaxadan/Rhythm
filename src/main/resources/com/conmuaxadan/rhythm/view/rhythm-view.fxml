@@ -4,6 +4,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
@@ -82,14 +84,18 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                            <children>
                               <Label fx:id="lbSongName" text="Song name" textFill="WHITE" />
+                              <Label fx:id="lbLoop" text="Loop: Off" textFill="WHITE" />
                            </children>
-                        </HBox>
+                           <padding>
+                              <Insets top="10.0" />
+                           </padding>
+                        </VBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
                            <children>
-                              <ToggleButton fx:id="btnShuffle" mnemonicParsing="false">
+                              <ToggleButton fx:id="btnShuffle" mnemonicParsing="false" onAction="#shuffleList">
                                  <graphic>
                                     <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -171,7 +177,7 @@
                      <children>
                         <Pane prefHeight="200.0" prefWidth="400.0">
                            <children>
-                              <Label fx:id="lbTitle" text="Home" textFill="WHITE">
+                              <Label fx:id="lbTitle" alignment="CENTER" text="Home" textFill="WHITE">
                                  <font>
                                     <Font size="24.0" />
                                  </font>
@@ -180,29 +186,39 @@
                         </Pane>
                         <StackPane alignment="CENTER_LEFT" prefHeight="150.0" prefWidth="150.0">
                            <children>
-                              <Button fx:id="btnAddFolder" mnemonicParsing="false" onAction="#addFolder" text="Add Folder">
-                                 <graphic>
-                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../img/add-folder.png" />
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </Button>
-                              <Button fx:id="btnAddFile" disable="true" mnemonicParsing="false" onAction="#addFile" text="Add File" visible="false">
-                                 <graphic>
-                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../img/add-file.png" />
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </Button>
+                              <MenuButton fx:id="menuButton" mnemonicParsing="false" stylesheets="@../css/style.css" text="Add Song" textFill="WHITE">
+                                <items>
+                                  <MenuItem fx:id="addFolder" mnemonicParsing="false" onAction="#addFolder" text="Add Folder">
+                                       <graphic>
+                                          <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../img/add-folder.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic>
+                                    </MenuItem>
+                                  <MenuItem fx:id="addFile" mnemonicParsing="false" onAction="#addFile" text="Add File">
+                                       <graphic>
+                                          <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../img/add-file.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic>
+                                    </MenuItem>
+                                </items>
+                              </MenuButton>
                            </children>
                         </StackPane>
                      </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
                   </HBox>
-                  <ListView fx:id="listview" prefHeight="290.0" prefWidth="565.0" stylesheets="@../css/style.css" />
+                  <ListView fx:id="listview" onMousePressed="#playInList" prefHeight="290.0" prefWidth="565.0">
+                     <padding>
+                        <Insets left="5.0" right="10.0" />
+                     </padding></ListView>
                </children>
                <BorderPane.margin>
                   <Insets bottom="15.0" right="15.0" top="15.0" />

@@ -40,7 +40,7 @@
     /*-fx-border-radius: 10;*/
 }
 /* button style when not hover or click */
-.button, #buttonOpenFolder, #aboutButton, .toggle-button {
+.button, .toggle-button {
     -fx-font-weight: normal;
     -fx-font-family: Roboto;
     -fx-background-color: transparent;
@@ -64,6 +64,12 @@
     -fx-background-radius: 5;
     -fx-background-color: #a5c8ff;
 }
+.menu-button {
+    -fx-border-color: #333333;
+    -fx-background-color: transparent;
+}
+
+
 
 /* make list view background transparent */
 .list-view {
@@ -90,5 +96,6 @@
 .scroll-bar:vertical{
     -fx-opacity: 0;
 }
+
 
 

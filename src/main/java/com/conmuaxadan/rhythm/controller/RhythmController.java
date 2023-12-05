@@ -28,13 +28,17 @@ public class RhythmController implements Initializable {
     @FXML
     private Slider sliderProgress, sliderVolume;
     @FXML
-    private Label lbSongName, lbCurrentTime, lbEndTime, lbTitle;
+    private Label lbSongName, lbCurrentTime, lbEndTime, lbTitle, lbLoop;
     @FXML
     private Button btnAddFolder, btnAddFile;
     @FXML
     private ListView<File> listview;
 
+    @FXML
+    private MenuItem addFolder, addFile;
+
     private SongManagement songManagement;
+    private File currentSong;
     private List<File> songs;
 
     private File fileSrc;
@@ -42,12 +46,13 @@ public class RhythmController implements Initializable {
     private Media media;
     private MediaPlayer mediaPlayer;
 
+
     private int songNumber;
     private Timer timer;
     private TimerTask timerTask;
     private boolean running;
 
-    private boolean isPlaying, isHome, isPlayingQueue;
+    private boolean isPlaying,isLoop, isHome, isPlayingQueue;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -57,10 +62,11 @@ public class RhythmController implements Initializable {
 
         initSongs("src/main/resources/com/conmuaxadan/rhythm/music");
 
-        media = new Media(songs.get(songNumber).toURI().toString());
+        currentSong = songs.get(songNumber);
+        media = new Media(currentSong.toURI().toString());
         mediaPlayer = new MediaPlayer(media);
 
-        lbSongName.setText(songs.get(songNumber).getName());
+        lbSongName.setText(currentSong.getName());
 
         sliderVolume.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -167,6 +173,27 @@ public class RhythmController implements Initializable {
 
     @FXML
     public void loopMedia() {
+        if (isLoop){
+            isLoop = false;
+            System.out.println("Loop off");
+            lbLoop.setText("Loop: Off");
+        }else {
+            isLoop = true;
+            System.out.println("Loop on");
+            lbLoop.setText("Loop: On");
+        }
+    }
+
+    @FXML
+    public void shuffleList(){
+        Collections.shuffle(songs);
+        ListView<File> newListview = listview;
+        newListview.getItems().clear();
+        newListview.getItems().addAll(songs);
+
+        newListview.getSelectionModel().select(currentSong);
+
+
 
     }
 
@@ -186,12 +213,15 @@ public class RhythmController implements Initializable {
                     lbEndTime.setText(ConvertSecondToMinute.secondsToTimeFormat(end - current));
 
                     if (current / end == 1) {
-
-                        cancelTimer();
-                        try {
-                            nextMedia();
-                        } catch (MalformedURLException e) {
-                            throw new RuntimeException(e);
+                        if (isLoop){
+                            mediaPlayer.seek(Duration.seconds(0));
+                        }else {
+                            cancelTimer();
+                            try {
+                                nextMedia();
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
 
                     }
@@ -216,11 +246,19 @@ public class RhythmController implements Initializable {
     }
 
     @FXML
+    public void playInList(){
+        songNumber = listview.getSelectionModel().getSelectedIndex();
+        initPlay();
+
+        System.out.println(listview.getSelectionModel().getSelectedIndex());
+    }
+
+    @FXML
     public void addFolder() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Choose your folder");
         directoryChooser.setInitialDirectory(new File("C:\\"));
-        Stage stage = (Stage) btnAddFolder.getScene().getWindow();
+        Stage stage = (Stage) lbSongName.getScene().getWindow();
         fileSrc = directoryChooser.showDialog(stage);
         initSongs(fileSrc.getAbsolutePath());
         System.out.println(fileSrc.getAbsolutePath());
@@ -231,7 +269,7 @@ public class RhythmController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose your file");
         fileChooser.setInitialDirectory(new File("C:\\"));
-        Stage stage = (Stage) btnAddFile.getScene().getWindow();
+        Stage stage = (Stage) lbSongName.getScene().getWindow();
         fileSrc = fileChooser.showOpenDialog(stage);
         initSongs(fileSrc.getAbsolutePath());
         System.out.println(fileSrc.getAbsolutePath());
@@ -247,12 +285,6 @@ public class RhythmController implements Initializable {
         newListview.getItems().clear();
         newListview.getItems().addAll(songs);
 
-        btnAddFile.setDisable(true);
-        btnAddFile.setVisible(false);
-
-        btnAddFolder.setDisable(false);
-        btnAddFolder.setVisible(true);
-
     }
 
     public void playingQueueAction() {
@@ -262,14 +294,8 @@ public class RhythmController implements Initializable {
         ListView<File> newListview = listview;
         newListview.getItems().clear();
         newListview.getItems().addAll(songs);
+        System.out.println("Play Queue");
 
-        System.out.println("Playing Queue");
-
-        btnAddFolder.setDisable(true);
-        btnAddFolder.setVisible(false);
-
-        btnAddFile.setDisable(false);
-        btnAddFile.setVisible(true);
     }
 
 

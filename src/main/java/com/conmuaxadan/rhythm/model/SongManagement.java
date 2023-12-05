@@ -10,7 +10,7 @@ public class SongManagement {
 
     public SongManagement() {
         this.songs = new ArrayList<>();
-        this.playingQueue = new ArrayList<>(songs);
+        this.playingQueue = new ArrayList<>();
     }
 
     public List<File> getSongs() {
@@ -32,18 +32,16 @@ public class SongManagement {
                 }
             }
         }
+        if (fileSrc.isFile()){
+            if (!duplicateCheck(fileSrc.getName()) || songs == null){
+                songs.add(fileSrc);
+            }
+        }
         playingQueue =new ArrayList<>(songs);
     }
 
     public void initPlayingQueue(String path){
-        File fileSrc = new File(path);
-        if (fileSrc.isFile()) {
-            if(!duplicateCheck(fileSrc.getName()) || playingQueue == null) playingQueue.add(fileSrc);
-        }
-//        for (File file:
-//             playingQueue) {
-//            System.out.println(file.getName());
-//        }
+
     }
 
     public boolean duplicateCheck(String name) {
