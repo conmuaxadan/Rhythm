@@ -49,15 +49,7 @@ public class SongManagement {
     }
 
     public static void main(String[] args) {
-        SongManagement songManagement = new SongManagement();
-        String path = "C:\\Users\\doanq\\Downloads\\Music";
-        songManagement.initSongs(path);
-        songManagement.initSongs("src/main/resources/com/conmuaxadan/rhythm/music");
 
-        for (File file:
-                songManagement.getPlayingQueue()) {
-            System.out.println(file.getName());
-        }
 
     }
 }

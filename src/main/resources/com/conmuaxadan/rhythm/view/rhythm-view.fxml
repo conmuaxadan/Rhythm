@@ -52,7 +52,7 @@
                      </children>
                   </HBox>
                   <Button fx:id="btnHome" mnemonicParsing="false" onAction="#homeAction" prefHeight="50.0" prefWidth="227.0" text="Home" />
-                  <Button fx:id="btnPlayingQueue" mnemonicParsing="false" onAction="#playingQueueAction" prefHeight="50.0" prefWidth="200.0" text="Playing Queue" />
+                  <Button fx:id="btnPlayingQueue" mnemonicParsing="false" onAction="#playingQueueAction" prefHeight="50.0" prefWidth="200.0" text="Play Queue" />
                </children>
                <BorderPane.margin>
                   <Insets />
@@ -207,6 +207,13 @@
                                        </graphic>
                                     </MenuItem>
                                 </items>
+                                 <graphic>
+                                    <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../img/music-icon.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                               </MenuButton>
                            </children>
                         </StackPane>

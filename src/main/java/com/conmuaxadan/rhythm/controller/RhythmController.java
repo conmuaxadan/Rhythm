@@ -249,6 +249,8 @@ public class RhythmController implements Initializable {
     public void playInList(){
         songNumber = listview.getSelectionModel().getSelectedIndex();
         initPlay();
+        playingQueueAction();
+        initPlay();
 
         System.out.println(listview.getSelectionModel().getSelectedIndex());
     }
@@ -284,17 +286,20 @@ public class RhythmController implements Initializable {
         ListView<File> newListview = listview;
         newListview.getItems().clear();
         newListview.getItems().addAll(songs);
+        newListview.getSelectionModel().select(songs.get(songNumber));
+        newListview.scrollTo(songs.get(songNumber));
 
     }
 
     public void playingQueueAction() {
         isHome = false;
-        lbTitle.setText("Playing Queue");
+        lbTitle.setText("Play Queue");
         songs = new ArrayList<>(songManagement.getPlayingQueue());
         ListView<File> newListview = listview;
         newListview.getItems().clear();
         newListview.getItems().addAll(songs);
-        System.out.println("Play Queue");
+        newListview.getSelectionModel().select(songs.get(songNumber));
+        newListview.scrollTo(songs.get(songNumber));
 
     }
 
